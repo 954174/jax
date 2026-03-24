@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flappy Bird</title>
+  <title>Flappy Bird - Flying Version</title>
   <style>
     body {
       margin: 0;
@@ -23,26 +23,26 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Bird
+// Bird (FLOATY SETTINGS)
 let bird = {
   x: 50,
-  y: 150,
+  y: 200,
   width: 30,
   height: 30,
-  gravity: 0.5,
-  lift: -8,
+  gravity: 0.25,   // slower falling
+  lift: -6,        // smoother jump
   velocity: 0
 };
 
 // Pipes
 let pipes = [];
 let pipeWidth = 50;
-let gap = 150;
+let gap = 160;
 
 // Score
 let score = 0;
 
-// Controls
+// Controls (hold or tap)
 document.addEventListener("keydown", () => {
   bird.velocity = bird.lift;
 });
@@ -57,19 +57,21 @@ function createPipe() {
   });
 }
 
-// Game loop
+// Game update
 function update() {
-  // Bird physics
+  // Bird physics (FLOATY)
   bird.velocity += bird.gravity;
+  bird.velocity *= 0.9; // air resistance (smooth flying)
   bird.y += bird.velocity;
 
-  // Ground collision
+  // Ceiling + ground
+  if (bird.y < 0) bird.y = 0;
   if (bird.y + bird.height > canvas.height) {
     bird.y = canvas.height - bird.height;
     bird.velocity = 0;
   }
 
-  // Move pipes
+  // Pipes
   for (let i = 0; i < pipes.length; i++) {
     pipes[i].x -= 2;
 
@@ -90,11 +92,10 @@ function update() {
     }
   }
 
-  // Remove old pipes
   pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
 }
 
-// Draw everything
+// Draw
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -122,10 +123,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Spawn pipes every 2 seconds
 setInterval(createPipe, 2000);
-
-// Start game
 gameLoop();
 </script>
 

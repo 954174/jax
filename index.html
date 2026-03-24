@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flappy Bird - Zero Gravity</title>
+  <title>Flappy Bird - Restart Version</title>
   <style>
     body {
       margin: 0;
@@ -23,31 +23,35 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Bird (ZERO GRAVITY)
-let bird = {
-  x: 50,
-  y: 250,
-  width: 30,
-  height: 30,
-  speed: 4
-};
+// Bird
+let bird;
+let pipes;
+let score;
 
-// Pipes
-let pipes = [];
 let pipeWidth = 50;
 let gap = 150;
 
-// Score
-let score = 0;
+// Reset function
+function resetGame() {
+  bird = {
+    x: 50,
+    y: 250,
+    width: 30,
+    height: 30,
+    speed: 4
+  };
+
+  pipes = [];
+  score = 0;
+}
+
+// Start game first time
+resetGame();
 
 // Controls
 document.addEventListener("keydown", (e) => {
-  if (e.code === "ArrowUp") {
-    bird.y -= bird.speed;
-  }
-  if (e.code === "ArrowDown") {
-    bird.y += bird.speed;
-  }
+  if (e.code === "ArrowUp") bird.y -= bird.speed;
+  if (e.code === "ArrowDown") bird.y += bird.speed;
 });
 
 // Create pipes
@@ -62,25 +66,24 @@ function createPipe() {
 
 // Update
 function update() {
-  // Keep bird inside screen
+  // Keep bird in bounds
   if (bird.y < 0) bird.y = 0;
   if (bird.y + bird.height > canvas.height) {
     bird.y = canvas.height - bird.height;
   }
 
-  // Move pipes
   for (let i = 0; i < pipes.length; i++) {
     pipes[i].x -= 2;
 
-    // Collision
+    // Collision = RESTART
     if (
       bird.x < pipes[i].x + pipeWidth &&
       bird.x + bird.width > pipes[i].x &&
       (bird.y < pipes[i].top ||
        bird.y + bird.height > canvas.height - pipes[i].bottom)
     ) {
-      alert("Game Over! Score: " + score);
-      document.location.reload();
+      resetGame();
+      return;
     }
 
     // Score
@@ -126,10 +129,4 @@ gameLoop();
 
 </body>
 </html>
-🎮 Controls
-⬆️ Arrow Up = go up
-⬇️ Arrow Down = go down
-No falling at all 🚀
-
-If you want, I can make:
 

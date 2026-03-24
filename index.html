@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flappy Bird - Restart Version</title>
+  <title>Flappy Bird - Moving Pipes</title>
   <style>
     body {
       margin: 0;
@@ -31,7 +31,7 @@ let score;
 let pipeWidth = 50;
 let gap = 150;
 
-// Reset function
+// Reset
 function resetGame() {
   bird = {
     x: 50,
@@ -45,7 +45,6 @@ function resetGame() {
   score = 0;
 }
 
-// Start game first time
 resetGame();
 
 // Controls
@@ -54,13 +53,14 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "ArrowDown") bird.y += bird.speed;
 });
 
-// Create pipes
+// Create pipes (WITH vertical movement)
 function createPipe() {
   let topHeight = Math.random() * (canvas.height - gap);
   pipes.push({
     x: canvas.width,
     top: topHeight,
-    bottom: canvas.height - topHeight - gap
+    bottom: canvas.height - topHeight - gap,
+    direction: Math.random() > 0.5 ? 1 : -1 // up or down
   });
 }
 
@@ -73,21 +73,33 @@ function update() {
   }
 
   for (let i = 0; i < pipes.length; i++) {
-    pipes[i].x -= 2;
+    let pipe = pipes[i];
 
-    // Collision = RESTART
+    // Move left
+    pipe.x -= 2;
+
+    // Move up/down
+    pipe.top += pipe.direction * 1;
+    pipe.bottom = canvas.height - pipe.top - gap;
+
+    // Bounce at limits
+    if (pipe.top <= 0 || pipe.top >= canvas.height - gap) {
+      pipe.direction *= -1;
+    }
+
+    // Collision = restart
     if (
-      bird.x < pipes[i].x + pipeWidth &&
-      bird.x + bird.width > pipes[i].x &&
-      (bird.y < pipes[i].top ||
-       bird.y + bird.height > canvas.height - pipes[i].bottom)
+      bird.x < pipe.x + pipeWidth &&
+      bird.x + bird.width > pipe.x &&
+      (bird.y < pipe.top ||
+       bird.y + bird.height > canvas.height - pipe.bottom)
     ) {
       resetGame();
       return;
     }
 
     // Score
-    if (pipes[i].x === bird.x) {
+    if (pipe.x === bird.x) {
       score++;
     }
   }
@@ -129,4 +141,3 @@ gameLoop();
 
 </body>
 </html>
-

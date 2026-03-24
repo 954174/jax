@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flappy Bird - Moving Pipes</title>
+  <title>Flappy Bird - Spacebar Control</title>
   <style>
     body {
       margin: 0;
@@ -31,6 +31,8 @@ let score;
 let pipeWidth = 50;
 let gap = 150;
 
+let movingUp = false;
+
 // Reset
 function resetGame() {
   bird = {
@@ -47,34 +49,44 @@ function resetGame() {
 
 resetGame();
 
-// Controls
+// SPACEBAR controls
 document.addEventListener("keydown", (e) => {
-  if (e.code === "ArrowUp") bird.y -= bird.speed;
-  if (e.code === "ArrowDown") bird.y += bird.speed;
+  if (e.code === "Space") {
+    movingUp = true;
+  }
 });
 
-// Create pipes (WITH vertical movement)
+document.addEventListener("keyup", (e) => {
+  if (e.code === "Space") {
+    movingUp = false;
+  }
+});
+
+// Create pipes
 function createPipe() {
   let topHeight = Math.random() * (canvas.height - gap);
   pipes.push({
     x: canvas.width,
     top: topHeight,
     bottom: canvas.height - topHeight - gap,
-    direction: Math.random() > 0.5 ? 1 : -1 // up or down
+    direction: Math.random() > 0.5 ? 1 : -1
   });
 }
 
 // Update
 function update() {
+  // Move bird when holding space
+  if (movingUp) {
+    bird.y -= bird.speed;
+  }
+
   // Keep bird in bounds
   if (bird.y < 0) bird.y = 0;
   if (bird.y + bird.height > canvas.height) {
     bird.y = canvas.height - bird.height;
   }
 
-  for (let i = 0; i < pipes.length; i++) {
-    let pipe = pipes[i];
-
+  for (let pipe of pipes) {
     // Move left
     pipe.x -= 2;
 
@@ -82,12 +94,12 @@ function update() {
     pipe.top += pipe.direction * 1;
     pipe.bottom = canvas.height - pipe.top - gap;
 
-    // Bounce at limits
+    // Bounce
     if (pipe.top <= 0 || pipe.top >= canvas.height - gap) {
       pipe.direction *= -1;
     }
 
-    // Collision = restart
+    // Collision
     if (
       bird.x < pipe.x + pipeWidth &&
       bird.x + bird.width > pipe.x &&
